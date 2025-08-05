@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: book-review-db
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-bookreviews2024}
+      MONGO_INITDB_DATABASE: bookreview
+    volumes:
+      - mongodb_data:/data/db
+      - ./backend/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    ports:
+      - "27017:27017"
+    networks:
+      - book-review-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: book-review-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      MONGODB_URI: mongodb://admin:${MONGO_PASSWORD:-bookreviews2024}@mongodb:27017/bookreview?authSource=admin
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-your-nextauth-secret-change-this}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    depends_on:
+      - mongodb
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - book-review-network
+
+  # Frontend (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5001/api}
+        NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+        NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-your-nextauth-secret-change-this}
+    container_name: book-review-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - book-review-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  book-review-network:
+    driver: bridge
