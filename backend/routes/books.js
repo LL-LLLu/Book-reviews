@@ -94,7 +94,7 @@ router.get('/search-google', auth, async (req, res) => {
         googleId: item.id,
         title: volumeInfo.title || '',
         author: volumeInfo.authors?.join(', ') || 'Unknown Author',
-        description: volumeInfo.description || '',
+        description: (volumeInfo.description || '').substring(0, 4000), // Truncate to 4000 chars max
         isbn: volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || 
               volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_10')?.identifier || '',
         coverImage: volumeInfo.imageLinks?.thumbnail || '',

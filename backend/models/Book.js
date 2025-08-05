@@ -22,7 +22,7 @@ const bookSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true,
-    maxlength: 2000
+    maxlength: 5000  // Increased to handle longer Google Books descriptions
   },
   coverImage: {
     type: String,
