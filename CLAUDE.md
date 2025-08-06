@@ -115,6 +115,12 @@ docker-compose up -d --build
 - **Fix**: Added GET `/api/auth/avatar` endpoint to return user avatar info
 - **Returns**: Avatar URL, hasAvatar flag, and avatar source type
 
+### Issue 5: Body parsing middleware interfering with multipart uploads
+- **Root cause**: express.json() and express.urlencoded() processing multipart requests
+- **Fix**: Modified server.js to skip body parsing for multipart/form-data requests
+- **Added**: Test upload endpoint `/auth/test-upload` for debugging
+- **Added**: Debug page at `/debug-upload` to test uploads
+
 ### Important Commands
 ```bash
 ./setup.sh                       # One-time setup for persistence

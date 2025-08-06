@@ -305,18 +305,56 @@ router.put('/password', auth, [
   }
 });
 
+// Test upload without auth (for debugging)
+router.post('/test-upload', upload.single('avatar'), async (req, res) => {
+  try {
+    console.log('=== TEST UPLOAD DEBUG ===');
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+    console.log('========================');
+    
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded in test' });
+    }
+    
+    res.json({ 
+      message: 'Test upload successful',
+      file: req.file,
+      filename: req.file.filename 
+    });
+  } catch (error) {
+    console.error('Test upload error:', error);
+    res.status(500).json({ message: 'Test upload server error' });
+  }
+});
+
 // Upload avatar
 router.post('/avatar', auth, (req, res, next) => {
-  console.log('Avatar upload route hit');
+  console.log('=== AVATAR UPLOAD START ===');
   console.log('Request headers:', req.headers);
   console.log('Content-Type:', req.headers['content-type']);
+  console.log('Content-Length:', req.headers['content-length']);
   console.log('User authenticated:', !!req.user);
+  console.log('User ID:', req.user._id);
+  
+  // Check if this is actually multipart/form-data
+  if (!req.headers['content-type']?.includes('multipart/form-data')) {
+    console.log('❌ Invalid Content-Type - not multipart/form-data');
+    return res.status(400).json({ message: 'Invalid Content-Type. Expected multipart/form-data' });
+  }
   
   upload.single('avatar')(req, res, (err) => {
     if (err) {
-      console.error('Multer middleware error:', err);
+      console.error('❌ Multer middleware error:', err);
+      console.error('Error details:', {
+        name: err.name,
+        message: err.message,
+        code: err.code
+      });
       return res.status(400).json({ message: 'File upload error: ' + err.message });
     }
+    console.log('✅ Multer middleware completed successfully');
     next();
   });
 }, async (req, res) => {

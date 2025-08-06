@@ -31,8 +31,23 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+// Only parse JSON and URL-encoded data for non-multipart requests
+app.use((req, res, next) => {
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    // Skip JSON/URL parsing for multipart requests
+    return next();
+  }
+  return express.json()(req, res, next);
+});
+
+app.use((req, res, next) => {
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    // Skip URL encoding parsing for multipart requests
+    return next();
+  }
+  return express.urlencoded({ extended: true })(req, res, next);
+});
 
 // Serve static files (avatars)
 app.use('/uploads', express.static('uploads'));
