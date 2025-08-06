@@ -89,8 +89,21 @@ export default function SettingsPage() {
   const uploadAvatarMutation = useMutation({
     mutationFn: async (file: File) => {
       console.log('Starting avatar upload mutation...');
+      console.log('File details:', {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+      
       const formData = new FormData();
       formData.append('avatar', file);
+      
+      // Log the actual FormData content
+      console.log('FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value);
+      }
+      
       const response = await api.post('/auth/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
