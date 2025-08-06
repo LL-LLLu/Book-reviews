@@ -105,9 +105,9 @@ export default function SettingsPage() {
         console.log(`  ${key}:`, value);
       });
       
-      const response = await api.post('/auth/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      // Let axios set the Content-Type automatically for FormData
+      // It will include the boundary parameter needed for multipart
+      const response = await api.post('/auth/avatar', formData);
       console.log('Avatar upload response:', response.data);
       return response.data;
     },
