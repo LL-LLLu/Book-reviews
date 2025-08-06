@@ -273,30 +273,51 @@ router.put('/password', auth, [
 // Upload avatar
 router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
   try {
+    console.log('Avatar upload request received');
+    console.log('User:', req.user.email);
+    console.log('File:', req.file);
+    
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
     // Delete old avatar if exists
-    if (req.user.avatar) {
+    if (req.user.avatar && !req.user.avatar.startsWith('http')) {
       const oldAvatarPath = path.join(__dirname, '../uploads/avatars', path.basename(req.user.avatar));
       if (fs.existsSync(oldAvatarPath)) {
         fs.unlinkSync(oldAvatarPath);
+        console.log('Deleted old avatar:', oldAvatarPath);
       }
     }
 
     // Update user avatar
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    console.log('New avatar URL:', avatarUrl);
+    
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar: avatarUrl },
-      { new: true }
+      { new: true, runValidators: true }
     );
 
     res.json({ user, avatarUrl });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Avatar upload error:', error);
+    
+    // Check for validation errors
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        errors,
+        details: error.message 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: error.message 
+    });
   }
 });
 
