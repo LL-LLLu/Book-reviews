@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getImageUrl } from '@/lib/image-utils';
 
 interface LayoutProps {
   children: ReactNode;
@@ -146,7 +147,7 @@ export default function Layout({ children }: LayoutProps) {
                     <Link href="/profile" className="flex items-center gap-2 text-black dark:text-white font-bold tracking-wide uppercase text-sm px-4 py-2 border-2 border-transparent hover:border-black dark:hover:border-white transition-colors">
                       {user.avatar ? (
                         <Image
-                          src={user.avatar?.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_BASE_URL}${user.avatar}`}
+                          src={getImageUrl(user.avatar) || ''}
                           alt={user.username}
                           width={28}
                           height={28}
@@ -259,7 +260,7 @@ export default function Layout({ children }: LayoutProps) {
                       <Link href="/profile" className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:text-primary-600 rounded-lg text-sm font-medium">
                         {user.avatar ? (
                           <Image
-                            src={user.avatar?.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_BASE_URL}${user.avatar}`}
+                            src={getImageUrl(user.avatar) || ''}
                             alt={user.username}
                             width={24}
                             height={24}

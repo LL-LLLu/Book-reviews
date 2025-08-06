@@ -131,6 +131,12 @@ docker-compose up -d --build
 - **Fix**: Added `35.173.211.34` to `next.config.js` remotePatterns
 - **Result**: Avatar images now display correctly via Next.js Image component
 
+### Issue 8: Avatar display inconsistent across components
+- **Root cause**: Some components using `process.env.NEXT_PUBLIC_BASE_URL` directly instead of `getImageUrl`
+- **Fixed components**: Header navigation (Layout.tsx) and Profile page (profile.tsx)
+- **Already working**: Settings page, ReviewList, and review detail pages
+- **Result**: Consistent avatar display across all pages
+
 ### Important Commands
 ```bash
 ./setup.sh                       # One-time setup for persistence

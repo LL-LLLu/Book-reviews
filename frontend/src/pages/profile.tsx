@@ -10,6 +10,7 @@ import { Review } from '@/types';
 import Layout from '@/components/Layout';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import { useAuth } from '@/lib/auth';
+import { getImageUrl } from '@/lib/image-utils';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -125,7 +126,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-6">
               {user.avatar ? (
                 <Image
-                  src={user.avatar?.startsWith('http') ? user.avatar : `${process.env.NEXT_PUBLIC_BASE_URL}${user.avatar}`}
+                  src={getImageUrl(user.avatar) || ''}
                   alt={user.username}
                   width={96}
                   height={96}
