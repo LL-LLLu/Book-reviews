@@ -10,8 +10,13 @@ export function getImageUrl(imagePath: string | null | undefined): string | null
     return imagePath;
   }
   
+  // Get base URL with fallback
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
+                  process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 
+                  '';
+  
   // Otherwise, prepend the base URL for local uploads
-  return `${process.env.NEXT_PUBLIC_BASE_URL}${imagePath}`;
+  return `${baseUrl}${imagePath}`;
 }
 
 /**
