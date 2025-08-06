@@ -110,6 +110,11 @@ docker-compose up -d --build
 - **Fix**: Enhanced error handling and debugging in avatar upload route
 - **Debug**: Check backend logs for multer middleware errors
 
+### Issue 4: "Cannot GET /api/auth/avatar" error
+- **Root cause**: Missing GET endpoint for avatar information
+- **Fix**: Added GET `/api/auth/avatar` endpoint to return user avatar info
+- **Returns**: Avatar URL, hasAvatar flag, and avatar source type
+
 ### Important Commands
 ```bash
 ./setup.sh                       # One-time setup for persistence

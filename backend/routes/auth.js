@@ -134,6 +134,26 @@ router.get('/me', auth, async (req, res) => {
   res.json({ user: req.user });
 });
 
+// Get user avatar info
+router.get('/avatar', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('avatar');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ 
+      avatar: user.avatar,
+      hasAvatar: !!user.avatar,
+      isCustomAvatar: user.avatar && !user.avatar.startsWith('http'),
+      isGoogleAvatar: user.avatar && user.avatar.startsWith('http')
+    });
+  } catch (error) {
+    console.error('Get avatar error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Update profile
 router.put('/profile', auth, [
   body('username').optional().isLength({ min: 3 }).trim(),
