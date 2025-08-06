@@ -530,4 +530,55 @@ router.post('/google', async (req, res) => {
   }
 });
 
+// Admin endpoint to promote users (temporary for setup)
+router.post('/promote-admin', auth, async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Check if current user is already admin (for security)
+    if (req.user.role !== 'admin') {
+      // Allow the first admin promotion by checking if any admin exists
+      const adminExists = await User.findOne({ role: 'admin' });
+      if (adminExists) {
+        return res.status(403).json({ message: 'Only admins can promote users' });
+      }
+    }
+    
+    const user = await User.findOneAndUpdate(
+      { email: email },
+      { role: 'admin' },
+      { new: true }
+    );
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ 
+      message: 'User promoted to admin successfully',
+      user: { email: user.email, username: user.username, role: user.role }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// List all users (admin only, temporary for setup)
+router.get('/list-users', auth, async (req, res) => {
+  try {
+    // Check if current user is admin or if no admin exists yet
+    const adminExists = await User.findOne({ role: 'admin' });
+    if (req.user.role !== 'admin' && adminExists) {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    
+    const users = await User.find({}, { email: 1, username: 1, role: 1, createdAt: 1 }).sort({ createdAt: -1 });
+    res.json({ users });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
