@@ -97,7 +97,8 @@ router.get('/search-google', auth, async (req, res) => {
         description: (volumeInfo.description || '').substring(0, 4000), // Truncate to 4000 chars max
         isbn: volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || 
               volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_10')?.identifier || '',
-        coverImage: volumeInfo.imageLinks?.thumbnail || '',
+        coverImage: volumeInfo.imageLinks?.thumbnail?.replace('http:', 'https:') || 
+                    volumeInfo.imageLinks?.smallThumbnail?.replace('http:', 'https:') || '',
         publisher: volumeInfo.publisher || '',
         publicationDate: volumeInfo.publishedDate || '',
         pageCount: volumeInfo.pageCount || 0,
@@ -138,6 +139,7 @@ router.post('/', auth, [
   body('description').notEmpty().trim(),
   body('genres').isArray({ min: 1 }),
   body('isbn').optional().trim(),
+  body('coverImage').optional().trim(), // Added coverImage validation
   body('publisher').optional().trim(),
   body('publicationDate').optional().isISO8601(),
   body('pageCount').optional().isInt({ min: 1 }),
