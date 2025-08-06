@@ -46,13 +46,17 @@ This is a full-stack book review application with:
 
 ### Environment Variables (.env)
 ```
-MONGO_PASSWORD=Aa2291718824
-JWT_SECRET=Aa2291718824
-NEXTAUTH_SECRET=Aa2291718824
-FRONTEND_URL=http://35.173.211.34:3000
-NEXTAUTH_URL=http://35.173.211.34:3000
-NEXT_PUBLIC_API_URL=http://35.173.211.34:5001/api
-NEXT_PUBLIC_BASE_URL=http://35.173.211.34:5001
+# See .env.example for all required variables
+# Never commit actual secrets to git!
+MONGO_PASSWORD=<your-secure-password>
+JWT_SECRET=<your-jwt-secret>
+NEXTAUTH_SECRET=<your-nextauth-secret>
+FRONTEND_URL=http://35-173-211-34.nip.io:3000
+NEXTAUTH_URL=http://35-173-211-34.nip.io:3000
+NEXT_PUBLIC_API_URL=http://35-173-211-34.nip.io:5001/api
+NEXT_PUBLIC_BASE_URL=http://35-173-211-34.nip.io:5001
+GOOGLE_CLIENT_ID=<your-google-client-id>
+GOOGLE_CLIENT_SECRET=<your-google-client-secret>
 ```
 
 ### AWS EC2 Details

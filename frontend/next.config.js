@@ -13,6 +13,10 @@ const nextConfig = {
         hostname: '35.173.211.34',
       },
       {
+        protocol: 'http',
+        hostname: '35-173-211-34.nip.io',
+      },
+      {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
