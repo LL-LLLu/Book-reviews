@@ -100,9 +100,10 @@ export default function SettingsPage() {
       
       // Log the actual FormData content
       console.log('FormData contents:');
-      for (let [key, value] of formData.entries()) {
+      // Use Array.from for TypeScript compatibility
+      Array.from(formData.entries()).forEach(([key, value]) => {
         console.log(`  ${key}:`, value);
-      }
+      });
       
       const response = await api.post('/auth/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
