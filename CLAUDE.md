@@ -121,6 +121,11 @@ docker-compose up -d --build
 - **Added**: Test upload endpoint `/auth/test-upload` for debugging
 - **Added**: Debug page at `/debug-upload` to test uploads
 
+### Issue 6: API client forcing wrong Content-Type for FormData
+- **Root cause**: Axios interceptor setting `application/json` for FormData requests
+- **Fix**: Modified `api.ts` to skip Content-Type override for FormData
+- **Result**: Axios now automatically sets `multipart/form-data` with boundary
+
 ### Important Commands
 ```bash
 ./setup.sh                       # One-time setup for persistence

@@ -14,9 +14,9 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Set Content-Type to application/json only if not already set
-    // This allows multipart/form-data for file uploads
-    if (!config.headers['Content-Type']) {
+    // Set Content-Type to application/json only for non-FormData requests
+    // Let axios handle Content-Type automatically for FormData (multipart/form-data)
+    if (!config.headers['Content-Type'] && !(config.data instanceof FormData)) {
       config.headers['Content-Type'] = 'application/json';
     }
     

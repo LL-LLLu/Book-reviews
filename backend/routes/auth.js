@@ -338,7 +338,8 @@ router.post('/avatar', auth, (req, res, next) => {
   console.log('User authenticated:', !!req.user);
   console.log('User ID:', req.user._id);
   
-  // Check if this is actually multipart/form-data
+  // Log content type for debugging
+  console.log('Content-Type check:', req.headers['content-type']);
   if (!req.headers['content-type']?.includes('multipart/form-data')) {
     console.log('❌ Invalid Content-Type - not multipart/form-data');
     return res.status(400).json({ message: 'Invalid Content-Type. Expected multipart/form-data' });
