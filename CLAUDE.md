@@ -96,13 +96,19 @@ docker-compose up -d --build
 
 ### Issue 1: Avatar uploads not persisting
 - **Root cause**: Container permissions and volume mounting
-- **Fix**: Added bind mount `./backend/uploads:/app/uploads:rw` with user ID mapping
+- **Fix**: Added bind mount `./backend/uploads:/app/uploads:rw`
 - **Setup**: Run `./setup.sh` to create directories with proper permissions
+- **Debug**: Added extensive logging to backend multer configuration
 
 ### Issue 2: Database data not persisting after restart
 - **Root cause**: Using named volume instead of bind mount
 - **Fix**: Changed to bind mount `./mongodb_data:/data/db`
 - **Setup**: Run `./setup.sh` to create MongoDB directory
+
+### Issue 3: Avatar upload "No file uploaded" error
+- **Root cause**: Multer not receiving file due to permissions/middleware issues
+- **Fix**: Enhanced error handling and debugging in avatar upload route
+- **Debug**: Check backend logs for multer middleware errors
 
 ### Important Commands
 ```bash

@@ -40,7 +40,6 @@ services:
       - "5001:5001"
     volumes:
       - ./backend/uploads:/app/uploads:rw
-    user: "1000:1000"
     networks:
       - book-review-network
 

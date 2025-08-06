@@ -17,22 +17,17 @@ if [ ! -d "./backend/uploads" ]; then
     echo "✅ Created backend/uploads directory"
 fi
 
-# Set proper permissions
-chmod 755 ./mongodb_data
-chmod 755 ./backend/uploads
-chmod 755 ./backend/uploads/avatars
+# Set proper permissions (more permissive for Docker)
+chmod 777 ./mongodb_data
+chmod 777 ./backend/uploads
+if [ -d "./backend/uploads/avatars" ]; then
+    chmod 777 ./backend/uploads/avatars
+fi
 
 echo "✅ Set directory permissions"
 
-# Set ownership to the user running the script (for Docker compatibility)
-if [ "$(id -u)" != "0" ]; then
-    # Not running as root, which is good for local development
-    echo "✅ Running as non-root user (recommended)"
-else
-    # Running as root, set ownership to Docker user
-    chown -R 1000:1000 ./mongodb_data ./backend/uploads
-    echo "✅ Set ownership for Docker containers"
-fi
+# Make sure directories are accessible by any user (Docker container compatibility)
+echo "✅ Directories configured for Docker container access"
 
 echo ""
 echo "📋 Data Persistence Setup Complete!"

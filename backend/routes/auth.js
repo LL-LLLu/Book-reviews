@@ -11,17 +11,28 @@ const { auth } = require('../middleware/auth');
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, '../uploads/avatars');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('Created uploads directory:', uploadDir);
+  } catch (error) {
+    console.error('Failed to create uploads directory:', error);
+  }
 }
 
 // Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log('Multer destination called for file:', file.originalname);
+    console.log('Upload directory:', uploadDir);
+    console.log('Directory exists:', fs.existsSync(uploadDir));
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
+    console.log('Multer filename called for user:', req.user._id);
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, req.user._id + '-' + uniqueSuffix + path.extname(file.originalname));
+    const filename = req.user._id + '-' + uniqueSuffix + path.extname(file.originalname);
+    console.log('Generated filename:', filename);
+    cb(null, filename);
   }
 });
 
@@ -38,6 +49,10 @@ const upload = multer({
   fileFilter,
   limits: {
     fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  onError: (error, next) => {
+    console.error('Multer error:', error);
+    next(error);
   }
 });
 
@@ -271,13 +286,28 @@ router.put('/password', auth, [
 });
 
 // Upload avatar
-router.post('/avatar', auth, upload.single('avatar'), async (req, res) => {
+router.post('/avatar', auth, (req, res, next) => {
+  console.log('Avatar upload route hit');
+  console.log('Request headers:', req.headers);
+  console.log('Content-Type:', req.headers['content-type']);
+  console.log('User authenticated:', !!req.user);
+  
+  upload.single('avatar')(req, res, (err) => {
+    if (err) {
+      console.error('Multer middleware error:', err);
+      return res.status(400).json({ message: 'File upload error: ' + err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     console.log('Avatar upload request received');
     console.log('User:', req.user.email);
     console.log('File:', req.file);
+    console.log('Request body:', req.body);
     
     if (!req.file) {
+      console.log('No file found in request');
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
