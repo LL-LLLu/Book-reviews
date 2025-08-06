@@ -49,4 +49,5 @@ Thumbs.db
 .dockerignore
 
 # Dev server logs
-*.log.env.production
+*.log
+.env.production
