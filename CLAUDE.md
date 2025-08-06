@@ -126,6 +126,11 @@ docker-compose up -d --build
 - **Fix**: Modified `api.ts` to skip Content-Type override for FormData
 - **Result**: Axios now automatically sets `multipart/form-data` with boundary
 
+### Issue 7: Next.js Image optimization blocking avatar display
+- **Root cause**: EC2 IP not in Next.js allowed image domains
+- **Fix**: Added `35.173.211.34` to `next.config.js` remotePatterns
+- **Result**: Avatar images now display correctly via Next.js Image component
+
 ### Important Commands
 ```bash
 ./setup.sh                       # One-time setup for persistence
