@@ -154,6 +154,13 @@ docker-compose down              # Stop but keep data
 1. SSH timeout to AWS - Check security groups for current IP
 2. ~~Avatar uploads may fail~~ - **FIXED** with proper volume mounting
 3. ~~Data loss if using `docker-compose down -v`~~ - **FIXED** with bind mounts
+4. ~~500 errors after updating .env file~~ - **FIXED** with credential sync scripts
+
+### Issue 9: 500 Internal Server Error after updating .env
+- **Root cause**: Mismatch between MongoDB container password and .env file password
+- **Symptoms**: Login fails with 500 error, backend can't connect to MongoDB
+- **Fix**: Use `./fix-credentials.sh` to sync credentials
+- **Prevention**: Always use update scripts when changing passwords
 
 ## Test Pages
 - `/test-avatar` - Debug avatar uploads
