@@ -59,13 +59,45 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Health check route
+// Health check routes
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Book Review API is running!',
     status: 'OK',
     timestamp: new Date().toISOString()
   });
+});
+
+app.get('/api/health', async (req, res) => {
+  try {
+    // Check MongoDB connection
+    const mongoStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+    
+    // Basic health check response
+    const health = {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      services: {
+        api: 'operational',
+        database: mongoStatus
+      }
+    };
+    
+    // If MongoDB is disconnected, set status to degraded
+    if (mongoStatus !== 'connected') {
+      health.status = 'degraded';
+    }
+    
+    res.status(health.status === 'healthy' ? 200 : 503).json(health);
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message
+    });
+  }
 });
 
 // Routes
