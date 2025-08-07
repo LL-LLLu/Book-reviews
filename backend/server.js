@@ -15,6 +15,8 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://localhost:3001',
+      'http://35.173.211.34:3000', // Direct IP access
+      'http://35-173-211-34.nip.io:3000', // nip.io domain access
       process.env.FRONTEND_URL // Add your production frontend URL here
     ].filter(Boolean);
     
@@ -24,6 +26,7 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.error(`CORS blocked origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
