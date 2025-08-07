@@ -17,14 +17,29 @@ if [ ! -d "./backend/uploads" ]; then
     echo "✅ Created backend/uploads directory"
 fi
 
-# Set proper permissions (more permissive for Docker)
-chmod 777 ./mongodb_data
-chmod 777 ./backend/uploads
-if [ -d "./backend/uploads/avatars" ]; then
-    chmod 777 ./backend/uploads/avatars
+# Set proper permissions (handling permission errors gracefully)
+# Try to set permissions, but don't fail if we can't
+if chmod 777 ./mongodb_data 2>/dev/null; then
+    echo "✅ Set mongodb_data permissions"
+else
+    echo "⚠️  Could not set mongodb_data permissions. If you see errors, run:"
+    echo "    sudo chown -R $(whoami):$(whoami) ./mongodb_data"
+    echo "    OR"
+    echo "    sudo chmod 777 ./mongodb_data"
 fi
 
-echo "✅ Set directory permissions"
+if chmod 777 ./backend/uploads 2>/dev/null; then
+    echo "✅ Set uploads permissions"
+else
+    echo "⚠️  Could not set uploads permissions. If you see errors, run:"
+    echo "    sudo chown -R $(whoami):$(whoami) ./backend/uploads"
+    echo "    OR"
+    echo "    sudo chmod 777 ./backend/uploads"
+fi
+
+if [ -d "./backend/uploads/avatars" ]; then
+    chmod 777 ./backend/uploads/avatars 2>/dev/null || true
+fi
 
 # Make sure directories are accessible by any user (Docker container compatibility)
 echo "✅ Directories configured for Docker container access"
