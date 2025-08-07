@@ -1,12 +1,15 @@
 # Backend Dockerfile
 FROM node:18-alpine
 
+# Install dependencies for bcrypt
+RUN apk add --no-cache python3 make g++
+
 # Create app directory
 WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --only=production && npm rebuild bcrypt --build-from-source
 
 # Copy app source
 COPY . .

@@ -98,8 +98,11 @@ router.post('/login', [
   body('password').notEmpty()
 ], async (req, res) => {
   try {
+    console.log('Login attempt for:', req.body.email);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.error('Validation errors:', errors.array());
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -108,13 +111,27 @@ router.post('/login', [
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check if user has password (for Google OAuth users)
+    if (!user.password && user.googleId) {
+      console.log('Google user attempting password login without password set');
+      return res.status(401).json({ message: 'Please login with Google or set up a password first' });
     }
 
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      console.log('Password mismatch for user:', email);
       return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    // Check JWT_SECRET
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not defined in environment variables');
+      return res.status(500).json({ message: 'Server configuration error' });
     }
 
     // Generate token
@@ -122,10 +139,15 @@ router.post('/login', [
       expiresIn: '7d'
     });
 
+    console.log('Login successful for:', email);
     res.json({ token, user });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Login error:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 });
 
