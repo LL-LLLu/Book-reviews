@@ -25,6 +25,24 @@ export default function AdminPage() {
     }
   });
 
+  // Fetch summary statistics (always fetch for summary cards)
+  const { data: statsData } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const [booksRes, reviewsRes, usersRes] = await Promise.all([
+        api.get('/books?limit=1'),
+        api.get('/reviews?limit=1'),
+        api.get('/users?limit=1')
+      ]);
+      return {
+        totalBooks: booksRes.data.totalBooks,
+        totalReviews: reviewsRes.data.totalReviews,
+        totalUsers: usersRes.data.totalUsers
+      };
+    },
+    enabled: currentUser?.role === 'admin'
+  });
+
   // Fetch books
   const { data: booksData, isLoading: loadingBooks } = useQuery({
     queryKey: ['admin-books'],
@@ -49,7 +67,7 @@ export default function AdminPage() {
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ['admin-users'],
     queryFn: async () => {
-      const response = await api.get('/users');
+      const response = await api.get('/users?limit=1000');
       return response.data;
     },
     enabled: activeTab === 'users'
@@ -175,17 +193,17 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border-l-4 border-blue-500">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Books</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{booksData?.totalBooks || 0}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{statsData?.totalBooks || booksData?.totalBooks || 0}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">In the library</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border-l-4 border-green-500">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Reviews</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{reviewsData?.totalReviews || 0}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{statsData?.totalReviews || reviewsData?.totalReviews || 0}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">User reviews</p>
           </div>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border-l-4 border-purple-500">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Users</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{usersData?.users?.length || 0}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{statsData?.totalUsers || usersData?.totalUsers || 0}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {usersData?.users?.filter((u: User) => u.role === 'admin').length || 0} admins
             </p>
@@ -196,9 +214,9 @@ export default function AdminPage() {
         <div className="border-b border-gray-200 dark:border-gray-700 mb-8">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: 'books', label: 'Books', count: booksData?.totalBooks },
-              { id: 'reviews', label: 'Reviews', count: reviewsData?.totalReviews },
-              { id: 'users', label: 'Users', count: usersData?.users?.length }
+              { id: 'books', label: 'Books', count: statsData?.totalBooks || booksData?.totalBooks },
+              { id: 'reviews', label: 'Reviews', count: statsData?.totalReviews || reviewsData?.totalReviews },
+              { id: 'users', label: 'Users', count: statsData?.totalUsers || usersData?.totalUsers }
             ].map((tab) => (
               <button
                 key={tab.id}
