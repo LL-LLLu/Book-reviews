@@ -27,7 +27,7 @@ const reviewSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    maxlength: 2000
+    maxlength: 10000
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
