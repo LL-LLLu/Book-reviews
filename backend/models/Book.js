@@ -79,6 +79,8 @@ bookSchema.pre('save', function(next) {
 });
 
 // Index for search functionality
-bookSchema.index({ title: 'text', author: 'text', description: 'text' });
+// We set language_override to a non-existent field to prevent MongoDB from using the 'language' field
+// for text search tokenization, which causes errors for unsupported languages (like 'zh-CN').
+bookSchema.index({ title: 'text', author: 'text', description: 'text' }, { language_override: 'textSearchLanguage' });
 
 module.exports = mongoose.model('Book', bookSchema);

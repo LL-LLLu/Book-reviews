@@ -17,6 +17,8 @@ const corsOptions = {
       'http://localhost:3001',
       'http://35.173.211.34:3000', // Direct IP access
       'http://35-173-211-34.nip.io:3000', // nip.io domain access
+      'http://lusbookreview.space:3000',
+      'https://lusbookreview.space',
       process.env.FRONTEND_URL // Add your production frontend URL here
     ].filter(Boolean);
     
