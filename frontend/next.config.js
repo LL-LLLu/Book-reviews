@@ -17,6 +17,14 @@ const nextConfig = {
         hostname: '35-173-211-34.nip.io',
       },
       {
+        protocol: 'http',
+        hostname: 'lusbookreview.space',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lusbookreview.space',
+      },
+      {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
@@ -44,6 +52,14 @@ const nextConfig = {
   },
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api',
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: process.env.NEXT_PUBLIC_BASE_URL ? `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/:path*` : 'http://backend:5001/uploads/:path*',
+      },
+    ]
   },
 }
 
