@@ -15,7 +15,7 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === 'google') {
         try {
           // Send user data to our backend to create/update user
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth-backend/google`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

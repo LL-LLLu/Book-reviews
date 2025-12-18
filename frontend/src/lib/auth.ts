@@ -35,7 +35,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   requirePasswordSetup: false,
   
   login: async (email: string, password: string) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await api.post('/auth-backend/login', { email, password });
     const { token, user } = response.data;
     
     localStorage.setItem('token', token);
@@ -43,7 +43,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
   
   register: async (username: string, email: string, password: string) => {
-    const response = await api.post('/auth/register', { username, email, password });
+    const response = await api.post('/auth-backend/register', { username, email, password });
     const { token, user } = response.data;
     
     localStorage.setItem('token', token);
@@ -103,7 +103,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     if (token && (forceRefresh || true)) { // Always fetch fresh data for now
       try {
         console.log('Fetching fresh user data from API...');
-        const response = await api.get('/auth/me');
+        const response = await api.get('/auth-backend/me');
         console.log('Fresh user data received:', {
           userId: response.data.user._id,
           email: response.data.user.email,

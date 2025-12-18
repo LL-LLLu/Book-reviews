@@ -106,7 +106,7 @@ app.get('/api/health', async (req, res) => {
 });
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth-backend', require('./routes/auth'));
 app.use('/api/books', require('./routes/books'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/users', require('./routes/users'));
