@@ -16,5 +16,5 @@ services:
 
 networks:
   book-review-network:
-    name: book-review-network
+    name: book-reviews_book-review-network
     external: true

@@ -224,8 +224,8 @@ You should see version numbers for each tool.
 
 ## 5.1 Clone Your Code
 ```bash
-git clone https://github.com/YOUR_USERNAME/book-review-app.git
-cd book-review-app
+git clone https://github.com/LL-LLLu/book-reviews.git
+cd book-reviews
 ```
 (Replace YOUR_USERNAME with your GitHub username)
 
@@ -242,7 +242,7 @@ In the nano editor, update these values:
 1. Find the URLs and replace `localhost` with your server's IP:
    ```
    FRONTEND_URL=http://YOUR_PUBLIC_IP:3000
-   NEXTAUTH_URL=http://YOUR_PUBLIC_IP:3000
+   NEXTAUTH_URL=http://35.173.211.34:3000
    NEXT_PUBLIC_API_URL=http://YOUR_PUBLIC_IP:5001/api
    ```
 

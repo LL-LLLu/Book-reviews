@@ -2,9 +2,51 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const axios = require('axios');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const Book = require('../models/Book');
 const Review = require('../models/Review');
 const { auth, adminAuth } = require('../middleware/auth');
+
+// Create uploads directory if it doesn't exist
+const uploadDir = path.join(__dirname, '../uploads/books');
+if (!fs.existsSync(uploadDir)) {
+  try {
+    fs.mkdirSync(uploadDir, { recursive: true });
+    console.log('Created book uploads directory:', uploadDir);
+  } catch (error) {
+    console.error('Failed to create book uploads directory:', error);
+  }
+}
+
+// Configure multer for book cover uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const filename = 'book-' + uniqueSuffix + path.extname(file.originalname);
+    cb(null, filename);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files are allowed'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+});
 
 // Get all books with pagination and filters
 router.get('/', async (req, res) => {
@@ -133,26 +175,64 @@ router.get('/:id', async (req, res) => {
 });
 
 // Add new book (authenticated users only)
-router.post('/', auth, [
+router.post('/', auth, upload.single('coverImage'), [
   body('title').notEmpty().trim(),
   body('author').notEmpty().trim(),
   body('description').notEmpty().trim(),
-  body('genres').isArray({ min: 1 }),
+  // Custom validator for genres to handle both array (JSON) and single strings
+  body('genres').custom((value) => {
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) && parsed.length > 0;
+        } catch {
+            return value.trim().length > 0;
+        }
+    }
+    return false;
+  }),
   body('isbn').optional().trim(),
-  body('coverImage').optional().trim(), // Added coverImage validation
   body('publisher').optional().trim(),
-  body('publicationDate').optional().isISO8601(),
-  body('pageCount').optional().isInt({ min: 1 }),
+  body('publicationDate').optional(), // Removed isISO8601 strict check as FormData might send different format
+  body('pageCount').optional(),
   body('language').optional().trim()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // If there's a file uploaded but validation failed, delete the file
+      if (req.file) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(400).json({ errors: errors.array() });
     }
     
+    let coverImageUrl = req.body.coverImage; // URL provided in body (optional)
+
+    if (req.file) {
+      coverImageUrl = `/uploads/books/${req.file.filename}`;
+    }
+    
+    // Handle genres parsing
+    let genres = req.body.genres;
+    if (typeof genres === 'string') {
+        try {
+            genres = JSON.parse(genres);
+        } catch (e) {
+            // If not JSON, assume it's a single genre or comma separated
+            if (genres.includes(',')) {
+                genres = genres.split(',').map(g => g.trim());
+            } else {
+                genres = [genres];
+            }
+        }
+    }
+
     const bookData = {
       ...req.body,
+      genres, // Use parsed genres
+      coverImage: coverImageUrl,
       addedBy: req.user._id
     };
     
@@ -164,6 +244,11 @@ router.post('/', auth, [
     res.status(201).json({ book });
   } catch (error) {
     console.error(error);
+    // If there's a file uploaded but save failed, delete the file
+    if (req.file) {
+        fs.unlinkSync(req.file.path);
+    }
+
     if (error.code === 11000) {
       return res.status(400).json({ message: 'Book with this ISBN already exists' });
     }

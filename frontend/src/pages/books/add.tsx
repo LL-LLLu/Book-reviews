@@ -40,6 +40,7 @@ export default function AddBookPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBook, setSelectedBook] = useState<GoogleBook | null>(null);
   const [isManualEntry, setIsManualEntry] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [formData, setFormData] = useState<BookForm>({
     title: '',
     author: '',
@@ -72,8 +73,8 @@ export default function AddBookPage() {
 
   // Add book mutation
   const addBookMutation = useMutation({
-    mutationFn: async (bookData: BookForm) => {
-      const response = await api.post('/books', bookData);
+    mutationFn: async (data: BookForm | FormData) => {
+      const response = await api.post('/books', data);
       return response.data;
     },
     onSuccess: () => {
@@ -105,6 +106,7 @@ export default function AddBookPage() {
       pageCount: book.pageCount,
       language: book.language
     });
+    setSelectedFile(null);
   };
 
   const handleInputChange = (field: keyof BookForm, value: any) => {
@@ -128,7 +130,27 @@ export default function AddBookPage() {
       return;
     }
 
-    addBookMutation.mutate(formData);
+    if (selectedFile) {
+      const data = new FormData();
+      data.append('title', formData.title);
+      data.append('author', formData.author);
+      data.append('description', formData.description);
+      // Send genres as JSON string to handle array correctly in backend
+      data.append('genres', JSON.stringify(formData.genres));
+      
+      if (formData.isbn) data.append('isbn', formData.isbn);
+      if (formData.publisher) data.append('publisher', formData.publisher);
+      if (formData.publicationDate) data.append('publicationDate', formData.publicationDate);
+      if (formData.pageCount) data.append('pageCount', formData.pageCount.toString());
+      if (formData.language) data.append('language', formData.language);
+      
+      // Append file
+      data.append('coverImage', selectedFile);
+
+      addBookMutation.mutate(data);
+    } else {
+      addBookMutation.mutate(formData);
+    }
   };
 
   return (
@@ -337,15 +359,45 @@ export default function AddBookPage() {
 
               <div>
                 <label className="block text-sm font-bold text-black dark:text-white mb-3 tracking-wide uppercase">
-                  Cover Image URL
+                  Cover Image
                 </label>
-                <input
-                  type="url"
-                  value={formData.coverImage}
-                  onChange={(e) => handleInputChange('coverImage', e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                  placeholder="https://example.com/image.jpg"
-                />
+                <div className="space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block w-full px-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-center cursor-pointer hover:border-black dark:hover:border-white transition-colors">
+                        <span className="text-gray-600 dark:text-gray-400">
+                          {selectedFile ? `Selected: ${selectedFile.name}` : 'Click to upload image'}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) {
+                              setSelectedFile(e.target.files[0]);
+                              handleInputChange('coverImage', '');
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <div className="flex items-center justify-center">
+                      <span className="text-gray-500 dark:text-gray-400 font-bold uppercase text-sm">OR</span>
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="url"
+                        value={formData.coverImage}
+                        onChange={(e) => {
+                          handleInputChange('coverImage', e.target.value);
+                          setSelectedFile(null);
+                        }}
+                        className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-black dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div>

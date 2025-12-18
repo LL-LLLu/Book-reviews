@@ -6,8 +6,11 @@
 - [ ] Generate strong, unique passwords (minimum 32 characters)
   ```bash
   openssl rand -base64 32  # For MONGO_PASSWORD
+  svphbEIjJcQU2sSOeH4VrNtUBMC9IhXC32W4uStp9IQ=
   openssl rand -base64 64  # For JWT_SECRET
+  J/MfI9/n3ADiGP3NuzJWFKLkOXGhi9wQ/EgDbta0KZY=
   openssl rand -base64 64  # For NEXTAUTH_SECRET
+  qd9ZzwSyFFPPu93/SaP/VidUJ2KuLIlrmMOIN02BrA4=
   ```
 - [ ] Create `.env` file with production values
 - [ ] Never commit `.env` to git (verify `.gitignore`)

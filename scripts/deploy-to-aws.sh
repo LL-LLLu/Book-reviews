@@ -57,7 +57,7 @@ else
 fi
 
 echo -e "${YELLOW}Step 4: Running setup script...${NC}"
-run_on_aws "cd $APP_DIR && ./setup.sh"
+run_on_aws "cd $APP_DIR && ./scripts/setup.sh"
 
 echo -e "${YELLOW}Step 5: Building and starting containers...${NC}"
 run_on_aws "cd $APP_DIR && docker-compose up -d --build"
