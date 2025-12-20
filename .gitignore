@@ -16,6 +16,9 @@ yarn-error.log*
 build/
 dist/
 
+# Scripts
+script/
+
 # Runtime data
 pids
 *.pid
